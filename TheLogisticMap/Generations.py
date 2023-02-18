@@ -25,19 +25,17 @@ def Generations(r, iters = 1000, x0 = 0.05, showTraj = True, startGen = 1):
     # Calculate Trajectories
     if (showTraj):   
         x = x0
-        for i in range(800):
+        for i in range(200):
+            lastX = x
+            x = bf.LogisticMap(x, r)
             # append generation Coordinate
-            data["trajX"].append(x)
-            data["trajY"].append(bf.LogisticMap(x, r))
+            data["trajX"].append(lastX)
+            data["trajY"].append(x)
             # Append Identity Line COordinate (pluging into itself)
             # new Generation now Gets old Generation
-            data["trajX"].append(bf.LogisticMap(x, r))
-            data["trajY"].append(bf.LogisticMap(x, r))
-            # Append Next Generation Coordinate
-            data["trajX"].append(bf.LogisticMap(x, r))
-            # The new Generation is used to calculate Next Generation
-            x = bf.LogisticMap(x, r)
-            data["trajY"].append(x) # GrandParent Generation of the original x
+            data["trajX"].append(x)
+            data["trajY"].append(x)
+
         # Rinse and repeat
     return data
 

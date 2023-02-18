@@ -83,13 +83,14 @@ The Stable Points are always along intersections with the Identity line at highe
 Generations. This makes sense because after a million generations, the population will stabalize
 so that the last generation equals the next generation, it does not vary!
 """
-def PartBAndC(disableCalculations = False, showPlots = False, savePlots = False, x0 = 0.5):
+def PartBAndC(disableCalculations = False, showPlots = False, savePlots = False, x0 = 0.2):
     iterations = 10000
     if not disableCalculations:
         print("Executing Part B and C Plots and Calculations")
         r = 2.9
         genData1 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 1)
         genData2 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 4)
+        
         gen.plotGensSideBySide(genData1, genData2, showPlot = showPlots, savePlot= savePlots, 
             saveName = "Plots/GenerationPlots{}N{}x0{}.png".format(int(r*10), str(genData1["N"])+str(genData2["N"]), str(x0)))
         genData1 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 10)
@@ -110,6 +111,13 @@ def PartBAndC(disableCalculations = False, showPlots = False, savePlots = False,
         r = 3.3
         genData1 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 1)
         genData2 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 4)
+
+        print("-"*10)
+        print("Stable Intersection Coordinates for r = {}".format(r))
+        gen.printIntersectCoordsAndDerivatives(genData2["idX"])
+        
+        print("-"*10)
+
         gen.plotGensSideBySide(genData1, genData2, showPlot = showPlots, savePlot= savePlots, 
             saveName = "Plots/GenerationPlots{}N{}x0{}.png".format(int(r*10), str(genData1["N"])+str(genData2["N"]), str(x0)))
         genData1 = gen.Generations(r, iters=iterations, x0=x0, showTraj = True, startGen = 10)
@@ -155,7 +163,7 @@ def PartBAndC(disableCalculations = False, showPlots = False, savePlots = False,
         gen.printIntersectCoordsAndDerivatives(genData2["idX"])
         print("-"*10)
 
-PartBAndC(disableCalculations = True, showPlots=False, savePlots=False)
+PartBAndC(disableCalculations = False, showPlots=False, savePlots=True)
 
 ###### PART D - LYPANOV ######
 """ Theory
@@ -204,5 +212,5 @@ def PartD(disableCalculations = False, showPlots = False, savePlots = False):
         (n, deltaArray2) = lp.Lyapunov(r, iters, x0, dx0)
         lp.plotLyapunov(n, deltaArray1, deltaArray2, showPlot = showPlots, savePlot = savePlots, saveName="Plots/Lyapunov.png")
 
-PartD(disableCalculations = False, showPlots = True, savePlots = False)
+PartD(disableCalculations = True, showPlots = True, savePlots = False)
 
