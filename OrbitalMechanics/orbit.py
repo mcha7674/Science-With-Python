@@ -28,7 +28,7 @@ class Orbit:
         self.vx = initV[0]
         self.vy = initV[1]
         self.v = np.sqrt(self.vx**2 + self.vy**2)
-        self.v_minus1 = 0
+        self.v_minus1 = self.v
         # Beta Constant for Inverse Law
         self.B = B
         # Alpha constant for relativistic Factor
