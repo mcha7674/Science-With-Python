@@ -8,7 +8,7 @@ def VelYGeneral(e, distFromSun, planetMass):
     return np.sqrt(orbit.Orbit.G*orbit.Orbit.M) * np.sqrt((1-e)/(distFromSun*(1+e))*(1+planetMass/orbit.Orbit.M))
 
 def CalcPrecessAngle(x, r):
-    return np.arccos(x / r) * (180/np.pi) # Convert angle from radians to degrees with 180/pi
+    return np.arccos(x / r) * (180/np.pi)  # Convert angle from radians to degrees with 180/pi
 
 def plotOrbit(data:dict, xlim = (-1, 1), ylim = (-1, 1), showPlot = True, savePlot = False, saveName = "orbitPlot.png", showAphelionPoints = True):
     fig, ax = plt.subplots(1,1, figsize = (9, 9))
@@ -43,10 +43,26 @@ def plotPrecessionAngleVsTime(data:dict, showPlot = True, savePlot = False, save
         plt.show()
     if savePlot:
         plt.savefig(saveName)
+
+def OrbitCalculations(orbit:orbit.Orbit, data:dict, t):
+    # Get Data for Aphelion Points. 
+    if orbit.isAtAphelion(): 
+        if not orbit.finishedPeriod:
+            data["xAphelion"].append(orbit.x)
+            data["yAphelion"].append(orbit.y)
+            precessionAngle = CalcPrecessAngle(orbit.x, orbit.r)
+            # only store precession angles for the first 180 degrees
+            if (precessionAngle - data["precessAngle"][len(data["precessAngle"]) - 1] >= 0):
+                data["precessAngle"].append( CalcPrecessAngle(orbit.x, orbit.r) )
+                data["periodPoints"].append( t )
+            orbit.finishedPeriod = True
+    if orbit.isAtPerihelion():
+        orbit.finishedPeriod = False
+    orbit.StepOrbit()
 ############################################################
 
 # Initiating time variables
-duration = 20.0 # years
+duration = 5.0 # years
 dt = 0.0001
 # Starting parameters
 # earth starting parameters
@@ -64,12 +80,12 @@ startPos = (x0, 0) # In AU
 
 # Physics Modifiers
 B = 2.0 # Beta exponent in the Force equation
-a = 0.001 # relativistic alpha term
+#a = 0.00001 # relativistic alpha term
 
 # Create Orbit instance for Mercury
-myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, B, a)
+myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, B)
 # Orbit Instance for Earth
-myOrbit2 = orbit.Orbit(earth, startPos, startVel, dt, B, a)
+myOrbit2 = orbit.Orbit(earth, startPos, startVel, dt, B)
 
 ##### Orbit data calculations #####
 data = {"x":[], "y":[], "xAphelion":[], "yAphelion":[], "precessAngle":[0], "periodPoints":[0], "t":[], "precessAngleRate":0}
@@ -79,24 +95,34 @@ for tick in range(int(duration/dt)):
     data["t"].append(t)
     data["x"].append(myOrbit1.x)
     data["y"].append(myOrbit1.y)
-    # Get Data for Aphelion Points. 
-    if myOrbit1.isAtAphelion(): 
-        if not myOrbit1.finishedPeriod:
-            data["xAphelion"].append(myOrbit1.x)
-            data["yAphelion"].append(myOrbit1.y)
-            precessionAngle = CalcPrecessAngle(myOrbit1.x, myOrbit1.r)
-            # only store precession angles for the first 180 degrees
-            if (precessionAngle - data["precessAngle"][len(data["precessAngle"]) - 1] >= 0):
-                data["precessAngle"].append( CalcPrecessAngle(myOrbit1.x, myOrbit1.r) )
-                data["periodPoints"].append( t )
-            myOrbit1.finishedPeriod = True
-    if myOrbit1.isAtPerihelion():
-        myOrbit1.finishedPeriod = False
-    myOrbit1.StepOrbit()
+    OrbitCalculations(myOrbit1, data, t)
     t+=dt
 
-plotOrbit(data, showPlot=True, savePlot = False, showAphelionPoints = True)
-plotPrecessionAngleVsTime(data)
+plotOrbit(data, showPlot=False, savePlot = False, showAphelionPoints = True)
+plotPrecessionAngleVsTime(data, showPlot=False)
 print("Rate of angle precession is: ", data["precessAngleRate"], "degrees per year" )
+#render.Animate(myOrbit1, dt = dt, skips = 30)
 
-render.Animate(myOrbit1, dt = dt, skips = 30)
+# calculate precession rate over alpha factors
+alpha = np.linspace(0.0001, 0.002, 5)
+dThetaArr = []
+for a in alpha:
+    data = {"x":[], "y":[], "xAphelion":[], "yAphelion":[], "precessAngle":[0], "periodPoints":[0], "t":[], "precessAngleRate":0}
+    t = 0
+    myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, B, a)
+    for tick in range(int(duration/dt)):
+        data["t"].append(t)
+        data["x"].append(myOrbit1.x)
+        data["y"].append(myOrbit1.y)
+        OrbitCalculations(myOrbit1, data, t)
+        t+=dt
+    dTheta, b = np.polyfit(data["periodPoints"], data["precessAngle"], deg=1)
+    dThetaArr.append(dTheta)
+
+
+# plt.scatter(alpha, dThetaArr)
+# dThetaDot, b = np.polyfit(alpha, dThetaArr, deg=1)
+# print(dThetaDot)
+# plt.plot(alpha, dThetaDot*alpha + b, linestyle = "--", color = "red")
+# plt.show()
+

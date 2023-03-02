@@ -52,7 +52,6 @@ class Orbit:
 
     def StepOrbit(self):
         # Evaluating PDE's
-        self.r = np.sqrt(self.x**2 + self.y**2)
         # Update Forces
         self.fx = (self.G * self.M * self.m) / pow(self.r, self.B + 1.0) \
         * (1+ (self.a/pow(self.r,2))) * self.x
@@ -67,6 +66,7 @@ class Orbit:
         # updating orbit position
         self.x = self.x + (self.vx * self.dt)
         self.y = self.y + (self.vy * self.dt)
+        self.r = np.sqrt(self.x**2 + self.y**2)
         # Update Energy
         self.PE = -1 * (self.G*self.M * self.body.mass) / self.r
         self.KE = 0.5 * self.body.mass * pow(self.v, 2)
