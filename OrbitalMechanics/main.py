@@ -96,42 +96,41 @@ myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, B)
 data = {"x":[], "y":[], "xAphelion":[], "yAphelion":[], "precessAngle":[0], "periodPoints":[0], "t":[], "precessAngleRate":0}
 # Calculate and store Orbit Data into "data" dictionary
 t = 0
-# for tick in range(int(duration/dt)):
-#     data["t"].append(t)
-#     data["x"].append(myOrbit1.x)
-#     data["y"].append(myOrbit1.y)
-#     OrbitCalculations(myOrbit1, data, t)
-#     t+=dt
+for tick in range(int(duration/dt)):
+    data["t"].append(t)
+    data["x"].append(myOrbit1.x)
+    data["y"].append(myOrbit1.y)
+    OrbitCalculations(myOrbit1, data, t)
+    t+=dt
+plotOrbit(data, showPlot=False, savePlot = False, showAphelionPoints = True)
+plotPrecessionAngleVsTime(data, showPlot=False)
+print("Rate of angle precession is: ", data["precessAngleRate"], "degrees per year" )
+render.Animate(myOrbit1, dt = dt, skips = 30)
 
-#plotOrbit(data, showPlot=False, savePlot = False, showAphelionPoints = True)
-#plotPrecessionAngleVsTime(data, showPlot=False)
-#print("Rate of angle precession is: ", data["precessAngleRate"], "degrees per year" )
-#render.Animate(myOrbit1, dt = dt, skips = 30)
-
-# calculate precession rate over alpha factors
-duration = 2
-dt = 0.0001
-alpha = np.linspace(0.0001, 0.002, 5)
-startVel = (0, v0y) # AU/yr
-startPos = (x0, 0) # In AU
-dThetaArr = []
-for a in alpha:
-    data = {"x":[], "y":[], "xAphelion":[], "yAphelion":[], "precessAngle":[0], "periodPoints":[0], "t":[], "precessAngleRate":0}
-    t = 0
-    myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, 2, a)
-    for tick in range(int(duration/dt)):
-        data["t"].append(t)
-        data["x"].append(myOrbit1.x)
-        data["y"].append(myOrbit1.y)
-        OrbitCalculations(myOrbit1, data, t)
-        t+=dt
-    dTheta, b = np.polyfit(data["periodPoints"], data["precessAngle"], deg=1)
-    dThetaArr.append(dTheta)
+##### calculate precession rate over several relativistic alpha factors #####
+# duration = 2
+# dt = 0.0001
+# alpha = np.linspace(0.0001, 0.002, 5)
+# startVel = (0, v0y) # AU/yr
+# startPos = (x0, 0) # In AU
+# dThetaArr = []
+# for a in alpha:
+#     data = {"x":[], "y":[], "xAphelion":[], "yAphelion":[], "precessAngle":[0], "periodPoints":[0], "t":[], "precessAngleRate":0}
+#     t = 0
+#     myOrbit1 = orbit.Orbit(mercury, startPos, startVel, dt, 2, a)
+#     for tick in range(int(duration/dt)):
+#         data["t"].append(t)
+#         data["x"].append(myOrbit1.x)
+#         data["y"].append(myOrbit1.y)
+#         OrbitCalculations(myOrbit1, data, t)
+#         t+=dt
+#     dTheta, b = np.polyfit(data["periodPoints"], data["precessAngle"], deg=1)
+#     dThetaArr.append(dTheta)
 
 
-plt.scatter(alpha, dThetaArr)
-dThetaDot, b = np.polyfit(alpha, dThetaArr, deg=1)
-print(dThetaDot)
-plt.plot(alpha, dThetaDot*alpha + b, linestyle = "--", color = "red")
-plt.show()
+# plt.scatter(alpha, dThetaArr)
+# dThetaDot, b = np.polyfit(alpha, dThetaArr, deg=1)
+# print(dThetaDot)
+# plt.plot(alpha, dThetaDot*alpha + b, linestyle = "--", color = "red")
+# plt.show()
 
